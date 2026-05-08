@@ -610,9 +610,6 @@ elif page == "Dashboard Analytics":
                 unsafe_allow_html=True)
 
     results_df = load_results()
-    st.write("COLUMNS:", results_df.columns)
-    st.write("SHAPE:", results_df.shape)
-    st.write(results_df.head())
     ga_df      = load_ga_log()
     summary    = compute_model_summary(results_df)
 
