@@ -674,17 +674,20 @@ elif page == "Dashboard Analytics":
                 st.metric("Features Selected",    int(final.get("selected_features", 0)))
                 st.metric("Final Diversity",      f"{final.get('diversity_score', 0):.4f}")
 
-        st.markdown("#### Feature Selection & Diversity Over Generations")
-        fig2 = plot_feature_selection(ga_df)
-        st.plotly_chart(fig2, use_container_width=True, config={"displayModeBar": False})
-
     with tab3:
-        c_l, c_r = st.columns(2, gap="medium")
-        
-        with c_r:
-            st.markdown("#### Accuracy Score Distribution")
+
+        st.markdown("#### Accuracy Score Distribution")
+
+        # Center layout
+        _, center, _ = st.columns([1, 3, 1])
+
+        with center:
             fig = plot_confidence_distribution(results_df)
-            st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+            st.plotly_chart(
+                fig,
+                use_container_width=True,
+                config={"displayModeBar": False}
+            )
 
     with tab4:
         st.markdown("#### Multi-Metric Radar Overview")
