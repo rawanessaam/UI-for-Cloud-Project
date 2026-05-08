@@ -618,7 +618,6 @@ elif page == "Dashboard Analytics":
     with c1: st.metric("Experiments",      summary["total_experiments"])
     with c2: st.metric("Best Accuracy",    f"{summary['best_accuracy']:.2%}")
     with c3: st.metric("Best Model",       summary["best_model"])
-    with c4: st.metric("GA Improvement",   f"+{summary['improvement_pct']:.1f}%")
     with c5: st.metric("GA Generations",   len(ga_df) if not ga_df.empty else 0)
 
     st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)
@@ -671,8 +670,6 @@ elif page == "Dashboard Analytics":
                 final = ga_df.iloc[-1]
                 st.metric("Final Best Fitness",   f"{final['best_fitness']:.4f}")
                 st.metric("Final Avg Fitness",    f"{final['avg_fitness']:.4f}")
-                st.metric("Features Selected",    int(final.get("selected_features", 0)))
-                st.metric("Final Diversity",      f"{final.get('diversity_score', 0):.4f}")
 
     with tab3:
 
