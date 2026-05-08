@@ -33,10 +33,8 @@ from charts import (
 )
 
 # ─── Global CSS ───────────────────────────────────────────────────────────────
-def spacer(h=12):
-    st.markdown(f"<div style='height:{h}px'></div>", unsafe_allow_html=True)
 
-    
+
 st.markdown("""
 <style>
 /* ── Import fonts ── */
@@ -401,10 +399,11 @@ if page == "Home":
     col_wf, col_tech = st.columns([3, 2], gap="large")
 
     with col_wf:
-        st.markdown("<div class='vep-card'>", unsafe_allow_html=True)
-        st.markdown("<div class='section-title'>🔄 Platform Workflow</div>"
-                    "<div class='section-sub'>End-to-end pipeline from raw image to optimized prediction</div>",
-                    unsafe_allow_html=True)
+        st.markdown("""
+        <div class='vep-card'>
+            <div class='section-title'>🔄 Platform Workflow</div>
+            <div class='section-sub'>End-to-end pipeline from raw image to optimized prediction</div>
+        """, unsafe_allow_html=True)
         steps = [
             ("01", "Image Ingestion",         "Upload JPEG/PNG images through the cloud-connected frontend dashboard."),
             ("02", "Feature Extraction",      "CNN backbone extracts spatial feature maps from raw pixel data."),
@@ -426,10 +425,11 @@ if page == "Home":
         st.markdown("</div>", unsafe_allow_html=True)
 
     with col_tech:
-        st.markdown("<div class='vep-card'>", unsafe_allow_html=True)
-        st.markdown("<div class='section-title'>📚 Course Modules</div>"
-                    "<div class='section-sub'>Academic disciplines integrated in this platform</div>",
-                    unsafe_allow_html=True)
+        st.markdown("""
+        <div class='vep-card'>
+            <div class='section-title'>📚 Course Modules</div>
+            <div class='section-sub'>Academic disciplines integrated in this platform</div>
+        """, unsafe_allow_html=True)
 
         courses = [
             ("👁️", "Computer Vision",          "#22D3EE",
@@ -452,9 +452,10 @@ if page == "Home":
         st.markdown("</div>", unsafe_allow_html=True)
 
         # Tech stack
-        st.markdown("<div class='vep-card'>", unsafe_allow_html=True)
-        st.markdown("<div class='section-title' style='font-size:1.1rem;'>🛠️ Tech Stack</div>",
-                    unsafe_allow_html=True)
+        st.markdown("""
+        <div class='vep-card'>
+            <div class='section-title' style='font-size:1.1rem;'>🛠️ Tech Stack</div>
+        """, unsafe_allow_html=True)
         techs = ["Python 3.10", "TensorFlow/Keras", "DEAP (GA)", "Streamlit",
                  "Plotly", "FastAPI", "Docker", "GCP / AWS"]
         badges_html = "".join(
@@ -495,8 +496,10 @@ elif page == "Prediction":
     col_upload, col_result = st.columns([1, 1], gap="large")
 
     with col_upload:
-        st.markdown("<div class='vep-card'>", unsafe_allow_html=True)
-        st.markdown("#### 📁 Image Upload", unsafe_allow_html=False)
+        st.markdown("""
+        <div class='vep-card'>
+            <div class='section-title'>📁 Image Upload</div>
+        """, unsafe_allow_html=True)
 
         uploaded = st.file_uploader(
             "Choose an image file",
@@ -535,8 +538,10 @@ elif page == "Prediction":
             st.info("⬆️ Upload an image above to enable prediction.")
 
     with col_result:
-        st.markdown("<div class='vep-card'>", unsafe_allow_html=True)
-        st.markdown("#### 🎯 Prediction Result", unsafe_allow_html=False)
+        st.markdown("""
+        <div class='vep-card'>
+            <div class='section-title'>🎯 Prediction Result</div>
+        """, unsafe_allow_html=True)
 
         if predict_clicked and uploaded:
             with st.spinner("Sending to cloud API…"):
