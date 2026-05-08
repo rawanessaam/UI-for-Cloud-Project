@@ -134,37 +134,36 @@ def _clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 # ─── Summary Statistics ────────────────────────────────────────────────────────
 
 def compute_model_summary(results: pd.DataFrame) -> dict:
-    """
-    Compute high-level summary statistics from evaluation results.
 
-    Returns a dict with keys:
-        best_accuracy, best_model, avg_baseline_acc,
-        avg_optimized_acc, improvement_pct, total_experiments
-    """
     if results.empty:
         return {
-            "best_accuracy": 0.0, "best_model": "N/A",
-            "avg_baseline_acc": 0.0, "avg_optimized_acc": 0.0,
-            "improvement_pct": 0.0, "total_experiments": 0
+            "best_accuracy": 0.0,
+            "best_model": "N/A",
+            "avg_baseline_acc": 0.0,
+            "avg_optimized_acc": 0.0,
+            "improvement_pct": 0.0,
+            "total_experiments": 0
         }
 
-    best_row = results.loc[results["accuracy"].idxmax()]
-    baseline = results[results["model"] == "Baseline CNN"]["accuracy"]
-    optimized = results[results["model"] == "GA Optimized CNN"]["accuracy"]
+    # safest mapping
+    base_df = results[results["model"].str.contains("Baseline", case=False, na=False)]
+    opt_df  = results[results["model"].str.contains("GA", case=False, na=False)]
 
-    avg_base = baseline.mean() if not baseline.empty else 0.0
-    avg_opt  = optimized.mean() if not optimized.empty else 0.0
+    best_row = results.loc[results["accuracy"].idxmax()]
+
+    avg_base = base_df["accuracy"].mean() if not base_df.empty else 0.0
+    avg_opt  = opt_df["accuracy"].mean() if not opt_df.empty else 0.0
+
     improvement = ((avg_opt - avg_base) / avg_base * 100) if avg_base > 0 else 0.0
 
     return {
-        "best_accuracy":      round(best_row["accuracy"], 4),
-        "best_model":         best_row["model"],
-        "avg_baseline_acc":   round(avg_base, 4),
-        "avg_optimized_acc":  round(avg_opt, 4),
-        "improvement_pct":    round(improvement, 2),
-        "total_experiments":  len(results)
+        "best_accuracy": round(best_row["accuracy"], 4),
+        "best_model": best_row["model"],
+        "avg_baseline_acc": round(avg_base, 4),
+        "avg_optimized_acc": round(avg_opt, 4),
+        "improvement_pct": round(improvement, 2),
+        "total_experiments": len(results)
     }
-
 
 def dataframe_to_csv_bytes(df: pd.DataFrame) -> bytes:
     """Convert a DataFrame to UTF-8 CSV bytes for st.download_button."""
