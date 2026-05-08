@@ -13,6 +13,7 @@ from pathlib import Path
 
 API_URL = "http://13.51.70.11:8000/predict"  # Replace with your deployed cloud API endpoint
 REQUEST_TIMEOUT = 30       # seconds
+USE_MOCK = False
 
 # ─── API Communication ─────────────────────────────────────────────────────────
 
