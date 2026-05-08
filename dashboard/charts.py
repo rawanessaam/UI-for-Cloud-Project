@@ -46,7 +46,14 @@ def plot_accuracy_comparison(results: pd.DataFrame) -> go.Figure:
     if results.empty:
         return _empty_figure("No experiment data available")
 
-    df = results[["experiment_id", "model", "accuracy"]].copy()
+    
+    required = ["experiment_id", "model", "accuracy"]
+
+    missing = [c for c in required if c not in results.columns]
+    if missing:
+        raise ValueError(f"Missing columns: {missing}. Available: {list(results.columns)}")
+
+    df = results[required].copy()
     df["experiment_id"] = df["experiment_id"].astype(str)
 
     fig = px.bar(
