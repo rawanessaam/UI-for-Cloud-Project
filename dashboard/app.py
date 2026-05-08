@@ -601,6 +601,8 @@ elif page == "Prediction":
 # PAGE 3 — DASHBOARD ANALYTICS
 # ══════════════════════════════════════════════════════════════════════════════
 
+
+
 elif page == "Dashboard Analytics":
 
     st.markdown("<div class='section-title'>📊 Dashboard Analytics</div>"
@@ -631,11 +633,12 @@ elif page == "Dashboard Analytics":
 
     with tab1:
         st.markdown("#### Baseline CNN vs GA Optimized — Accuracy per Experiment")
+        st.write(results_df.columns)
         fig = plot_accuracy_comparison(results_df)
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
         if not results_df.empty:
-            st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
+            st.marskdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
             c_a, c_b = st.columns(2)
             with c_a:
                 baseline_stats = results_df[results_df["model"] == "Baseline CNN"]["accuracy"].describe()
