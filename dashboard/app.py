@@ -733,7 +733,10 @@ elif page == "Experiment Logs":
             with fc2:
                 min_acc = st.slider("Min Accuracy", 0.0, 1.0, 0.0, 0.01)
             with fc3:
-                sort_col = st.selectbox("Sort by", ["experiment_id", "accuracy", "f1_score", "runtime_seconds"])
+                sort_col = st.selectbox(
+                    "Sort by",
+                    [c for c in ["model", "accuracy", "f1_macro", "f1_weighted"] if c in results_df.columns]
+                )
 
             filtered = results_df[
                 (results_df["model"].isin(model_filter)) &
