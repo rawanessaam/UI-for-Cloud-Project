@@ -56,17 +56,17 @@ def predict_image(image_file) -> dict:
         return {"error": f"Unexpected error: {str(e)}"}
 
 
-def _mock_prediction(image_file) -> dict:
-    """Return a realistic mock prediction for demo / offline mode."""
-    import random
-    classes = [
-        "airplane", "automobile", "bird", "cat", "deer",
-        "dog", "frog", "horse", "ship", "truck"
-    ]
-    label = random.choice(classes)
-    confidence = round(random.uniform(0.82, 0.99), 4)
-    model = random.choice(["GA Optimized CNN", "Baseline CNN"])
-    return {"prediction": label, "confidence": confidence, "model": model}
+# def _mock_prediction(image_file) -> dict:
+#     """Return a realistic mock prediction for demo / offline mode."""
+#     import random
+#     classes = [
+#         "airplane", "automobile", "bird", "cat", "deer",
+#         "dog", "frog", "horse", "ship", "truck"
+#     ]
+#     label = random.choice(classes)
+#     confidence = round(random.uniform(0.82, 0.99), 4)
+#     model = random.choice(["GA Optimized CNN", "Baseline CNN"])
+#     return {"prediction": label, "confidence": confidence, "model": model}
 
 
 # ─── CSV / Data Loading ────────────────────────────────────────────────────────
