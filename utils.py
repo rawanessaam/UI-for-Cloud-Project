@@ -1,0 +1,165 @@
+"""
+utils.py — Utility functions for the Vision Evolution Platform dashboard.
+Handles API communication, CSV loading, data cleaning, and error management.
+"""
+
+import requests
+import pandas as pd
+import numpy as np
+import io
+from pathlib import Path
+
+# ─── Configuration ────────────────────────────────────────────────────────────
+
+API_URL = "http://13.51.70.11:8000/docs"  # Replace with your deployed cloud API endpoint
+REQUEST_TIMEOUT = 30       # seconds
+
+# ─── API Communication ─────────────────────────────────────────────────────────
+
+def predict_image(image_file) -> dict:
+    """
+    Send an image file to the cloud API and return the prediction result.
+
+    Args:
+        image_file: A file-like object (from st.file_uploader).
+
+    Returns:
+        dict with keys: prediction, confidence, model
+              OR dict with key: error (on failure)
+    """
+    if API_URL == "http://13.51.70.11:8000/docs":
+        # Demo mode: return mock prediction when no API is configured
+        return _mock_prediction(image_file)
+
+    try:
+        files = {"file": (image_file.name, image_file.getvalue(), image_file.type)}
+        response = requests.post(API_URL, files=files, timeout=REQUEST_TIMEOUT)
+        response.raise_for_status()
+        data = response.json()
+
+        # Validate expected fields
+        required = {"prediction", "confidence", "model"}
+        if not required.issubset(data.keys()):
+            return {"error": f"Unexpected API response structure: {list(data.keys())}"}
+
+        return data
+
+    except requests.exceptions.ConnectionError:
+        return {"error": "Cannot reach the API server. Check your network or API URL."}
+    except requests.exceptions.Timeout:
+        return {"error": f"Request timed out after {REQUEST_TIMEOUT}s."}
+    except requests.exceptions.HTTPError as e:
+        return {"error": f"HTTP error {e.response.status_code}: {e.response.text[:200]}"}
+    except ValueError:
+        return {"error": "API returned invalid JSON."}
+    except Exception as e:
+        return {"error": f"Unexpected error: {str(e)}"}
+
+
+def _mock_prediction(image_file) -> dict:
+    """Return a realistic mock prediction for demo / offline mode."""
+    import random
+    classes = [
+        "airplane", "automobile", "bird", "cat", "deer",
+        "dog", "frog", "horse", "ship", "truck"
+    ]
+    label = random.choice(classes)
+    confidence = round(random.uniform(0.82, 0.99), 4)
+    model = random.choice(["GA Optimized CNN", "Baseline CNN"])
+    return {"prediction": label, "confidence": confidence, "model": model}
+
+
+# ─── CSV / Data Loading ────────────────────────────────────────────────────────
+
+DATA_DIR = Path(__file__).parent
+
+def load_results(path: str = None) -> pd.DataFrame:
+    """
+    Load evaluation results CSV into a DataFrame.
+    Returns an empty DataFrame with expected columns on failure.
+    """
+    csv_path = path or DATA_DIR / "evaluation" / "results.csv"
+    return _safe_load_csv(
+        csv_path,
+        fallback_columns=[
+            "experiment_id", "model", "accuracy", "precision",
+            "recall", "f1_score", "loss", "runtime_seconds", "epoch", "timestamp"
+        ]
+    )
+
+
+def load_ga_log(path: str = None) -> pd.DataFrame:
+    """
+    Load GA convergence log CSV into a DataFrame.
+    Returns an empty DataFrame with expected columns on failure.
+    """
+    csv_path = path or DATA_DIR / "ga_log.csv"
+    return _safe_load_csv(
+        csv_path,
+        fallback_columns=[
+            "generation", "best_fitness", "avg_fitness", "worst_fitness",
+            "population_size", "mutation_rate", "crossover_rate",
+            "selected_features", "diversity_score"
+        ]
+    )
+
+
+def _safe_load_csv(path, fallback_columns: list) -> pd.DataFrame:
+    """Load a CSV file safely, returning a structured empty DataFrame on error."""
+    try:
+        df = pd.read_csv(path)
+        return _clean_dataframe(df)
+    except FileNotFoundError:
+        return pd.DataFrame(columns=fallback_columns)
+    except pd.errors.EmptyDataError:
+        return pd.DataFrame(columns=fallback_columns)
+    except Exception:
+        return pd.DataFrame(columns=fallback_columns)
+
+
+def _clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    """Remove duplicates, strip whitespace from string columns, reset index."""
+    df = df.drop_duplicates().reset_index(drop=True)
+    for col in df.select_dtypes(include="object").columns:
+        df[col] = df[col].str.strip()
+    return df
+
+
+# ─── Summary Statistics ────────────────────────────────────────────────────────
+
+def compute_model_summary(results: pd.DataFrame) -> dict:
+    """
+    Compute high-level summary statistics from evaluation results.
+
+    Returns a dict with keys:
+        best_accuracy, best_model, avg_baseline_acc,
+        avg_optimized_acc, improvement_pct, total_experiments
+    """
+    if results.empty:
+        return {
+            "best_accuracy": 0.0, "best_model": "N/A",
+            "avg_baseline_acc": 0.0, "avg_optimized_acc": 0.0,
+            "improvement_pct": 0.0, "total_experiments": 0
+        }
+
+    best_row = results.loc[results["accuracy"].idxmax()]
+    baseline = results[results["model"] == "Baseline CNN"]["accuracy"]
+    optimized = results[results["model"] == "GA Optimized CNN"]["accuracy"]
+
+    avg_base = baseline.mean() if not baseline.empty else 0.0
+    avg_opt  = optimized.mean() if not optimized.empty else 0.0
+    improvement = ((avg_opt - avg_base) / avg_base * 100) if avg_base > 0 else 0.0
+
+    return {
+        "best_accuracy":      round(best_row["accuracy"], 4),
+        "best_model":         best_row["model"],
+        "avg_baseline_acc":   round(avg_base, 4),
+        "avg_optimized_acc":  round(avg_opt, 4),
+        "improvement_pct":    round(improvement, 2),
+        "total_experiments":  len(results)
+    }
+
+
+def dataframe_to_csv_bytes(df: pd.DataFrame) -> bytes:
+    """Convert a DataFrame to UTF-8 CSV bytes for st.download_button."""
+    return df.to_csv(index=False).encode("utf-8")

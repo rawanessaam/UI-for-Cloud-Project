@@ -1,0 +1,4 @@
+model,accuracy,f1_macro,f1_weighted,params,inference_ms_per_batch,file_size_mb,num_filters,num_layers,acc_airplane,acc_automobile,acc_bird,acc_cat,acc_deer,acc_dog,acc_frog,acc_horse,acc_ship,acc_truck
+Baseline,0.8587,0.8579,0.8579,3377866.0,56.73,13.53,64.0,3.0,0.907,0.943,0.774,0.693,0.847,0.767,0.906,0.891,0.933,0.926
+GA-Optimized,0.8993,0.8987,0.8987,12249514.0,48.84,49.04,96.0,4.0,0.908,0.961,0.863,0.768,0.903,0.823,0.93,0.938,0.952,0.947
+Delta (Opt-Base),0.0406,0.0408,0.0408,8871648.0,-7.89,35.51,32.0,1.0,0.001,0.018,0.089,0.075,0.056,0.056,0.024,0.047,0.019,0.021
