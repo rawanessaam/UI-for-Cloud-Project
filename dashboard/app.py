@@ -627,7 +627,7 @@ elif page == "Dashboard Analytics":
     tab1, tab2, tab3, tab4 = st.tabs([
         "🏆 Model Comparison",
         "🧬 GA Convergence",
-        "⚡ Runtime & Distribution",
+        "⚡ Distribution",
         "🕸️ Metrics Radar",
     ])
 

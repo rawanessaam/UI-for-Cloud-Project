@@ -154,29 +154,31 @@ def plot_confidence_distribution(results):
 
 # ─── 5. Experiment Metrics Overview (radar) ───────────────────────────────────
 
-def plot_experiment_metrics_overview(results):
+def plot_experiment_metrics_overview(results: pd.DataFrame):
 
     metrics = [c for c in ["accuracy", "f1_macro", "f1_weighted"] if c in results.columns]
 
-    if not metrics:
-        return _empty_figure("No metric columns available")
-
-    df = results.groupby("model")[metrics].mean().reset_index()
+    if results.empty or len(metrics) < 2:
+        return _empty_figure("Not enough metrics for radar chart")
 
     fig = go.Figure()
 
-    for _, row in df.iterrows():
-        fig.add_trace(go.Scatter(
-            x=metrics,
-            y=[row[m] for m in metrics],
-            mode="lines+markers",
-            name=row["model"]
+    for model in results["model"].unique():
+
+        subset = results[results["model"] == model][metrics].mean().values.tolist()
+
+        fig.add_trace(go.Scatterpolar(
+            r=subset + [subset[0]],
+            theta=metrics + [metrics[0]],
+            fill="toself",
+            name=model
         ))
 
     fig.update_layout(
-        title="Model Metrics Comparison",
-        xaxis_title="Metrics",
-        yaxis_title="Score",
+        title="Model Metrics Radar Overview",
+        polar=dict(
+            radialaxis=dict(visible=True, range=[0, 1]),
+        ),
         **_LAYOUT_BASE
     )
 
