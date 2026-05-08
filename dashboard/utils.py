@@ -73,19 +73,25 @@ def predict_image(image_file) -> dict:
 
 DATA_DIR = Path(__file__).parent
 
-def load_results(path: str = None) -> pd.DataFrame:
-    """
-    Load evaluation results CSV into a DataFrame.
-    Returns an empty DataFrame with expected columns on failure.
-    """
-    csv_path = path or DATA_DIR / "evaluation" / "results.csv"
-    return _safe_load_csv(
-        csv_path,
-        fallback_columns=[
-            "experiment_id", "model", "accuracy", "precision",
-            "recall", "f1_score", "loss", "runtime_seconds", "epoch", "timestamp"
-        ]
-    )
+
+def load_results():
+    df = pd.read_csv("evaluation/results.csv")
+
+    # 🔧 normalize column names (VERY IMPORTANT)
+    df.columns = [c.strip().lower() for c in df.columns]
+
+    # 🔁 map possible variations → standard schema
+    rename_map = {
+        "exp_id": "experiment_id",
+        "experiment": "experiment_id",
+        "model_name": "model",
+        "acc": "accuracy",
+        "accuracy_score": "accuracy",
+    }
+
+    df.rename(columns=rename_map, inplace=True)
+
+    return df
 
 
 def load_ga_log(path: str = None) -> pd.DataFrame:
