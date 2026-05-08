@@ -637,8 +637,6 @@ elif page == "Dashboard Analytics":
         # CLEAN DATA FIRST (VERY IMPORTANT)
         results_df["model"] = results_df["model"].astype(str).str.strip()
 
-        st.write("Models found:", results_df["model"].unique())
-
         fig = plot_accuracy_comparison(results_df)
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
