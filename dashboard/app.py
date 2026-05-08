@@ -33,7 +33,10 @@ from charts import (
 )
 
 # ─── Global CSS ───────────────────────────────────────────────────────────────
+def spacer(h=12):
+    st.markdown(f"<div style='height:{h}px'></div>", unsafe_allow_html=True)
 
+    
 st.markdown("""
 <style>
 /* ── Import fonts ── */
