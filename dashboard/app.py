@@ -26,7 +26,7 @@ from utils import (
     predict_image, load_results, load_ga_log,
     compute_model_summary, dataframe_to_csv_bytes,
 )
-from dashboard.charts import (
+from .charts import (
     plot_accuracy_comparison, plot_ga_convergence,
     plot_runtime_comparison, plot_confidence_distribution,
     plot_experiment_metrics_overview, plot_feature_selection,
