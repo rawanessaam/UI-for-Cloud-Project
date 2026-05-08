@@ -592,7 +592,8 @@ elif page == "Prediction":
     # API info expander
     with st.expander("🔧 API Configuration & Debug Info"):
         from utils import API_URL
-        st.code(f"Endpoint: {http://13.51.70.11:8000/predict}", language="text")
+        API_URL = "http://13.51.70.11:8000/predict"
+        st.code(f"Endpoint: {API_URL}", language="text")
         st.markdown("""
         **Expected response schema:**
         ```json
