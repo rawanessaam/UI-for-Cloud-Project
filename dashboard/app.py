@@ -561,10 +561,9 @@ elif page == "Prediction":
 
                 st.markdown("<div style='height:16px;'></div>", unsafe_allow_html=True)
 
-                m1= st.columns(1)
-                with m1:
+                col = st.columns(3)
+                with col[1]:
                     st.metric("Confidence", f"{confidence:.1%}")
-                
 
                 st.markdown("**Confidence Score**")
                 st.progress(confidence)
