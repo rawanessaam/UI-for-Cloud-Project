@@ -614,11 +614,11 @@ elif page == "Dashboard Analytics":
     summary    = compute_model_summary(results_df)
 
     # Top metrics strip
-    c1, c2, c3, c4, c5 = st.columns(5)
+    c1, c2, c3, c4,= st.columns(4)
     with c1: st.metric("Experiments",      summary["total_experiments"])
     with c2: st.metric("Best Accuracy",    f"{summary['best_accuracy']:.2%}")
     with c3: st.metric("Best Model",       summary["best_model"])
-    with c5: st.metric("GA Generations",   len(ga_df) if not ga_df.empty else 0)
+    with c4: st.metric("GA Generations",   len(ga_df) if not ga_df.empty else 0)
 
     st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)
 
