@@ -17,47 +17,28 @@ REQUEST_TIMEOUT = 30       # seconds
 # ─── API Communication ─────────────────────────────────────────────────────────
 
 
-def _mock_prediction(image_file) -> dict:
-    """Return a realistic mock prediction for demo / offline mode."""
+def _mock_prediction(image_file):
     import random
-    classes = [
-        "airplane", "automobile", "bird", "cat", "deer",
-        "dog", "frog", "horse", "ship", "truck"
-    ]
-    label = random.choice(classes)
-    confidence = round(random.uniform(0.82, 0.99), 4)
-    model = random.choice(["GA Optimized CNN", "Baseline CNN"])
-    return {"prediction": label, "confidence": confidence, "model": model}
+    classes = ["airplane","automobile","bird","cat","deer","dog","frog","horse","ship","truck"]
+    return {
+        "prediction": random.choice(classes),
+        "confidence": round(random.uniform(0.82, 0.99), 4),
+        "model": "Mock Model"
+    }
 
 
-
-def predict_image(image_file) -> dict:
-    """
-    Send an image file to the cloud API and return the prediction result.
-
-    Args:
-        image_file: A file-like object (from st.file_uploader).
-
-    Returns:
-        dict with keys: prediction, confidence, model
-              OR dict with key: error (on failure)
-    """
-    if API_URL == "http://13.51.70.11:8000/predict":
-        # Demo mode: return mock prediction when no API is configured
+def predict_image(image_file):
+    if USE_MOCK:
         return _mock_prediction(image_file)
 
     try:
         files = {"file": (image_file.name, image_file.getvalue(), image_file.type)}
-        response = requests.post(API_URL, files=files, timeout=REQUEST_TIMEOUT)
-        response.raise_for_status()
-        data = response.json()
+        r = requests.post(API_URL, files=files, timeout=30)
+        r.raise_for_status()
+        return r.json()
 
-        # Validate expected fields
-        required = {"prediction", "confidence", "model"}
-        if not required.issubset(data.keys()):
-            return {"error": f"Unexpected API response structure: {list(data.keys())}"}
-
-        return data
+    except Exception as e:
+        return {"error": str(e)}
 
     except requests.exceptions.ConnectionError:
         return {"error": "Cannot reach the API server. Check your network or API URL."}
