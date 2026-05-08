@@ -638,7 +638,7 @@ elif page == "Dashboard Analytics":
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
         if not results_df.empty:
-            st.marskdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
+            st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
             c_a, c_b = st.columns(2)
             with c_a:
                 baseline_stats = results_df[results_df["model"] == "Baseline CNN"]["accuracy"].describe()
