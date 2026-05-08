@@ -633,22 +633,35 @@ elif page == "Dashboard Analytics":
 
     with tab1:
         st.markdown("#### Baseline CNN vs GA Optimized — Accuracy per Experiment")
-        st.write(results_df.columns)
+
+        # CLEAN DATA FIRST (VERY IMPORTANT)
+        results_df["model"] = results_df["model"].astype(str).str.strip()
+
+        st.write("Models found:", results_df["model"].unique())
+
         fig = plot_accuracy_comparison(results_df)
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
         if not results_df.empty:
+
             st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
             c_a, c_b = st.columns(2)
-            with c_a:
-                baseline_stats = results_df[results_df["model"] == "Baseline"]["accuracy"].describe()
-                st.markdown("**Baseline CNN — Accuracy Stats**")
-                st.dataframe(baseline_stats.rename("value").to_frame(), use_container_width=True)
-            with c_b:
-                opt_stats = results_df[results_df["model"] == "GA-Optimized"]["accuracy"].describe()
-                st.markdown("**GA Optimized CNN — Accuracy Stats**")
-                st.dataframe(opt_stats.rename("value").to_frame(), use_container_width=True)
 
+            with c_a:
+                baseline = results_df[
+                    results_df["model"].str.contains("Baseline", na=False)
+                ]["accuracy"]
+
+                st.markdown("**Baseline CNN — Accuracy Stats**")
+                st.dataframe(baseline.describe().to_frame(), use_container_width=True)
+
+            with c_b:
+                optimized = results_df[
+                    results_df["model"].str.contains("GA", na=False)
+                ]["accuracy"]
+
+                st.markdown("**GA Optimized CNN — Accuracy Stats**")
+                st.dataframe(optimized.describe().to_frame(), use_container_width=True)
     with tab2:
         st.markdown("#### Genetic Algorithm Convergence")
         col_l, col_r = st.columns([3, 1])
