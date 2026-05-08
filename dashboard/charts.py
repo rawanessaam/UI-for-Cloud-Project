@@ -38,53 +38,27 @@ _LAYOUT_BASE = dict(
 
 # ─── 1. Baseline vs Optimised Accuracy ────────────────────────────────────────
 
-def plot_accuracy_comparison(results: pd.DataFrame) -> go.Figure:
-    """
-    Grouped bar chart comparing Baseline CNN vs GA Optimized CNN accuracy
-    across experiments.
-    """
-    if results.empty:
-        return _empty_figure("No experiment data available")
+def plot_accuracy_comparison(results):
 
-    
-    required = ["experiment_id", "model", "accuracy"]
+    df = results.copy()
 
-    missing = [c for c in required if c not in results.columns]
+    # Ensure required columns exist
+    required = ["model", "accuracy"]
+    missing = [c for c in required if c not in df.columns]
+
     if missing:
-        raise ValueError(f"Missing columns: {missing}. Available: {list(results.columns)}")
-
-    df = results[required].copy()
-    df["experiment_id"] = df["experiment_id"].astype(str)
+        raise ValueError(f"Missing columns: {missing}. Available: {list(df.columns)}")
 
     fig = px.bar(
         df,
-        x="experiment_id",
+        x="model",
         y="accuracy",
         color="model",
-        barmode="group",
-        color_discrete_map={
-            "Baseline CNN":       _PALETTE["baseline"],
-            "GA Optimized CNN":   _PALETTE["optimized"],
-        },
-        labels={"experiment_id": "Experiment #", "accuracy": "Accuracy", "model": "Model"},
-        title="Baseline CNN vs GA Optimized CNN — Accuracy per Experiment",
+        text="accuracy",
+        title="Model Accuracy Comparison"
     )
 
-    fig.update_traces(marker_line_width=0, opacity=0.92)
-    fig.update_yaxes(range=[0.6, 1.0], tickformat=".0%", gridcolor=_PALETTE["border"])
-    fig.update_xaxes(gridcolor="rgba(0,0,0,0)")
-    fig.update_layout(**_LAYOUT_BASE)
-
-    # Reference line at baseline mean
-    baseline_mean = results[results["model"] == "Baseline CNN"]["accuracy"].mean()
-    if not np.isnan(baseline_mean):
-        fig.add_hline(
-            y=baseline_mean, line_dash="dot",
-            line_color=_PALETTE["baseline"],
-            annotation_text=f"Baseline avg {baseline_mean:.2%}",
-            annotation_font_color=_PALETTE["baseline"],
-        )
-
+    fig.update_traces(texttemplate="%{text:.3f}", textposition="outside")
     return fig
 
 
