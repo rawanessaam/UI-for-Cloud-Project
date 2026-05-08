@@ -589,24 +589,6 @@ elif page == "Prediction":
 
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # API info expander
-    with st.expander("🔧 API Configuration & Debug Info"):
-        from utils import API_URL
-        API_URL = "http://13.51.70.11:8000/predict"
-        st.code(f"Endpoint: {API_URL}", language="text")
-        st.markdown("""
-        **Expected response schema:**
-        ```json
-        {
-          "prediction": "cat",
-          "confidence": 0.97,
-          "model": "GA Optimized CNN"
-        }
-        ```
-        > **Demo mode**: When `API_URL` is set to `YOUR_API_URL`, the platform returns
-        > mock predictions locally so the dashboard remains fully explorable without a
-        > live backend.
-        """)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
