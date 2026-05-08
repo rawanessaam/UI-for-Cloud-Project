@@ -11,7 +11,7 @@ from pathlib import Path
 
 # ─── Configuration ────────────────────────────────────────────────────────────
 
-API_URL = "http://13.51.70.11:8000/docs"  # Replace with your deployed cloud API endpoint
+API_URL = "http://13.51.70.11:8000/predict"  # Replace with your deployed cloud API endpoint
 REQUEST_TIMEOUT = 30       # seconds
 
 # ─── API Communication ─────────────────────────────────────────────────────────
@@ -27,7 +27,7 @@ def predict_image(image_file) -> dict:
         dict with keys: prediction, confidence, model
               OR dict with key: error (on failure)
     """
-    if API_URL == "http://13.51.70.11:8000/docs":
+    if API_URL == "http://13.51.70.11:8000/predict":
         # Demo mode: return mock prediction when no API is configured
         return _mock_prediction(image_file)
 
