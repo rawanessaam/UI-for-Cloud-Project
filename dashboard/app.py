@@ -373,14 +373,25 @@ if page == "Home":
 
     c1, c2, c3, c4 = st.columns(4)
     with c1:
-        st.metric("Best Accuracy",     f"{summary['best_accuracy']:.2%}")
+        st.metric(
+            "Best Accuracy",
+            f"{summary.get('best_accuracy', 0):.2%}"
+        )
     with c2:
-        st.metric("Baseline Average",  f"{summary['avg_baseline_acc']:.2%}")
+        st.metric(
+            "Baseline Average",
+            f"{summary.get('avg_baseline_acc', 0):.2%}"
+        )
     with c3:
-        st.metric("GA Optimized Avg",  f"{summary['avg_optimized_acc']:.2%}")
+        st.metric(
+            "GA Optimized Avg",
+            f"{summary.get('avg_optimized_acc', 0):.2%}"
+        )
     with c4:
-        st.metric("Improvement",       f"+{summary['improvement_pct']:.1f}%")
-
+        st.metric(
+            "Improvement",
+            f"+{summary.get('improvement_pct', 0):.1f}%"
+        )
     st.markdown("<div style='height:28px;'></div>", unsafe_allow_html=True)
 
     # Two-column layout: workflow + courses
