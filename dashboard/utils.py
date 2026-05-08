@@ -64,10 +64,9 @@ DATA_DIR = Path(__file__).parent
 def load_results():
     df = pd.read_csv("evaluation/results.csv")
 
-    # 🔧 normalize column names (VERY IMPORTANT)
-    df.columns = [c.strip().lower() for c in df.columns]
+    # clean columns safely
+    df.columns = df.columns.str.strip()
 
-    # 🔁 map possible variations → standard schema
     rename_map = {
         "exp_id": "experiment_id",
         "experiment": "experiment_id",
@@ -76,7 +75,14 @@ def load_results():
         "accuracy_score": "accuracy",
     }
 
-    df.rename(columns=rename_map, inplace=True)
+    df = df.rename(columns=rename_map)
+
+    # ensure required columns exist
+    required = ["model", "accuracy"]
+    missing = [c for c in required if c not in df.columns]
+
+    if missing:
+        raise ValueError(f"Missing required columns: {missing}. Found: {list(df.columns)}")
 
     return df
 
