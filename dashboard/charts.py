@@ -42,12 +42,11 @@ def plot_accuracy_comparison(results):
 
     df = results.copy()
 
-    # Ensure required columns exist
-    required = ["model", "accuracy"]
-    missing = [c for c in required if c not in df.columns]
+    if "model" not in df.columns or "accuracy" not in df.columns:
+        return _empty_figure("Missing required columns: model, accuracy")
 
-    if missing:
-        raise ValueError(f"Missing columns: {missing}. Available: {list(df.columns)}")
+    # keep only what exists
+    df = df[["model", "accuracy"]].copy()
 
     fig = px.bar(
         df,
@@ -120,74 +119,34 @@ def plot_ga_convergence(ga_log: pd.DataFrame) -> go.Figure:
     return fig
 
 
-# ─── 3. Runtime Comparison ────────────────────────────────────────────────────
 
-def plot_runtime_comparison(results: pd.DataFrame) -> go.Figure:
-    """
-    Horizontal box plot comparing training runtime (seconds) per model type.
-    """
-    if results.empty:
-        return _empty_figure("No runtime data available")
-
-    fig = go.Figure()
-
-    for model, color in [
-        ("Baseline CNN",     _PALETTE["baseline"]),
-        ("GA Optimized CNN", _PALETTE["optimized"]),
-    ]:
-        subset = results[results["model"] == model]["runtime_seconds"].dropna()
-        if subset.empty:
-            continue
-        fig.add_trace(go.Box(
-            x=subset,
-            name=model,
-            marker_color=color,
-            line_color=color,
-            fillcolor=color.replace(")", ",0.25)").replace("rgb", "rgba") if color.startswith("rgb") else color + "40",
-            boxmean="sd",
-            orientation="h",
-        ))
-
-    fig.update_xaxes(title="Runtime (seconds)", gridcolor=_PALETTE["border"])
-    fig.update_yaxes(gridcolor="rgba(0,0,0,0)")
-    fig.update_layout(title="Training Runtime Distribution by Model", **_LAYOUT_BASE)
-
-    return fig
 
 
 # ─── 4. Confidence Distribution ───────────────────────────────────────────────
 
-def plot_confidence_distribution(results: pd.DataFrame) -> go.Figure:
-    """
-    Overlapping histogram of model accuracy scores to visualise confidence spread.
-    If an 'f1_score' column exists it is overlaid as a KDE-style line.
-    """
-    if results.empty:
-        return _empty_figure("No data to plot")
+def plot_confidence_distribution(results):
+
+    if results.empty or "accuracy" not in results.columns:
+        return _empty_figure("No accuracy data available")
 
     fig = go.Figure()
 
-    for model, color in [
-        ("Baseline CNN",     _PALETTE["baseline"]),
-        ("GA Optimized CNN", _PALETTE["optimized"]),
-    ]:
-        subset = results[results["model"] == model]["accuracy"].dropna()
-        if subset.empty:
-            continue
+    for model in results["model"].unique():
+        subset = results[results["model"] == model]["accuracy"]
+
         fig.add_trace(go.Histogram(
             x=subset,
             name=model,
-            nbinsx=12,
-            marker_color=color,
-            opacity=0.72,
+            opacity=0.7,
+            nbinsx=10
         ))
 
     fig.update_layout(
         barmode="overlay",
-        title="Accuracy Score Distribution by Model",
-        xaxis=dict(title="Accuracy", tickformat=".2f", gridcolor=_PALETTE["border"]),
-        yaxis=dict(title="Count", gridcolor=_PALETTE["border"]),
-        **_LAYOUT_BASE,
+        title="Accuracy Distribution",
+        xaxis_title="Accuracy",
+        yaxis_title="Count",
+        **_LAYOUT_BASE
     )
 
     return fig
@@ -195,47 +154,30 @@ def plot_confidence_distribution(results: pd.DataFrame) -> go.Figure:
 
 # ─── 5. Experiment Metrics Overview (radar) ───────────────────────────────────
 
-def plot_experiment_metrics_overview(results: pd.DataFrame) -> go.Figure:
-    """
-    Radar / spider chart comparing mean metric values across the two model types.
-    Metrics: accuracy, precision, recall, f1_score (normalised 0-1).
-    """
-    metrics = ["accuracy", "precision", "recall", "f1_score"]
-    available = [m for m in metrics if m in results.columns]
+def plot_experiment_metrics_overview(results):
 
-    if results.empty or not available:
-        return _empty_figure("No metrics data available")
+    metrics = [c for c in ["accuracy", "f1_macro", "f1_weighted"] if c in results.columns]
+
+    if not metrics:
+        return _empty_figure("No metric columns available")
+
+    df = results.groupby("model")[metrics].mean().reset_index()
 
     fig = go.Figure()
 
-    for model, color in [
-        ("Baseline CNN",     _PALETTE["baseline"]),
-        ("GA Optimized CNN", _PALETTE["optimized"]),
-    ]:
-        subset = results[results["model"] == model][available].mean().values.tolist()
-        # Close the radar loop
-        fig.add_trace(go.Scatterpolar(
-            r=subset + [subset[0]],
-            theta=[m.replace("_", " ").title() for m in available] + [available[0].replace("_", " ").title()],
-            fill="toself",
-            fillcolor=color + "33",
-            line=dict(color=color, width=2),
-            name=model,
+    for _, row in df.iterrows():
+        fig.add_trace(go.Scatter(
+            x=metrics,
+            y=[row[m] for m in metrics],
+            mode="lines+markers",
+            name=row["model"]
         ))
 
     fig.update_layout(
-        title="Experiment Metrics Radar — Mean Values",
-        polar=dict(
-            radialaxis=dict(
-                visible=True, range=[0.6, 1.0],
-                tickformat=".0%",
-                gridcolor=_PALETTE["border"],
-                linecolor=_PALETTE["border"],
-            ),
-            angularaxis=dict(gridcolor=_PALETTE["border"]),
-            bgcolor=_PALETTE["surface"],
-        ),
-        **_LAYOUT_BASE,
+        title="Model Metrics Comparison",
+        xaxis_title="Metrics",
+        yaxis_title="Score",
+        **_LAYOUT_BASE
     )
 
     return fig

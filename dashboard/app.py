@@ -644,11 +644,11 @@ elif page == "Dashboard Analytics":
             st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
             c_a, c_b = st.columns(2)
             with c_a:
-                baseline_stats = results_df[results_df["model"] == "Baseline CNN"]["accuracy"].describe()
+                baseline_stats = results_df[results_df["model"] == "Baseline"]["accuracy"].describe()
                 st.markdown("**Baseline CNN — Accuracy Stats**")
                 st.dataframe(baseline_stats.rename("value").to_frame(), use_container_width=True)
             with c_b:
-                opt_stats = results_df[results_df["model"] == "GA Optimized CNN"]["accuracy"].describe()
+                opt_stats = results_df[results_df["model"] == "GA-Optimized"]["accuracy"].describe()
                 st.markdown("**GA Optimized CNN — Accuracy Stats**")
                 st.dataframe(opt_stats.rename("value").to_frame(), use_container_width=True)
 
@@ -672,10 +672,7 @@ elif page == "Dashboard Analytics":
 
     with tab3:
         c_l, c_r = st.columns(2, gap="medium")
-        with c_l:
-            st.markdown("#### Runtime Distribution")
-            fig = plot_runtime_comparison(results_df)
-            st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+        
         with c_r:
             st.markdown("#### Accuracy Score Distribution")
             fig = plot_confidence_distribution(results_df)
@@ -688,8 +685,8 @@ elif page == "Dashboard Analytics":
 
         if not results_df.empty:
             st.markdown("**Mean Metrics per Model**")
-            metrics_cols = [c for c in ["accuracy", "precision", "recall", "f1_score", "loss"]
-                            if c in results_df.columns]
+            metrics_cols = [c for c in ["accuracy", "f1_macro", "f1_weighted"]
+                        if c in results_df.columns]
             pivot = results_df.groupby("model")[metrics_cols].mean().round(4)
             st.dataframe(pivot, use_container_width=True)
 
